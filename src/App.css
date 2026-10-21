@@ -4,3 +4,14 @@
   width: 100%;
   height: 100vh;
 }
+
+/* Garden toast enter uses an overshoot easing — kill bounce; appear in place */
+.garden-toast-transition-enter,
+.garden-toast-transition-enter-active,
+.garden-toast-transition-exit,
+.garden-toast-transition-exit-active {
+  transform: none !important;
+  max-height: none !important;
+  transition: none !important;
+  opacity: 1 !important;
+}

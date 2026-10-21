@@ -11,5 +11,6 @@ const buildDate = [
 
 export default defineConfig({
   plugins: [react()],
+  base: '/ticket-forms-migrations/',
   define: { __BUILD_DATE__: JSON.stringify(buildDate) },
 })

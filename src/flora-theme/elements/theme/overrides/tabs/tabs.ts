@@ -9,13 +9,13 @@ export interface ITabThemeProps {
 }
 
 /**
- * Flora Tabs — selected = blue text + blue indicator; inactive = FG/default;
- * hover/focus = primary blue (matches Flora Tabs default).
+ * Flora Tabs — resting unselected = FG/default;
+ * selected + unselected hover = FG/primary (#406CC4), not Garden blue.
  */
 export const tab = ({ theme, $isVertical }: ITabThemeProps) => {
-  /* Flora primary blue — same token as button/link emphasis */
-  const selectedFg = getColor({ theme, variable: 'foreground.primary' })
-  const selectedBorder = getColor({ theme, variable: 'border.primaryEmphasis' })
+  /* FG/primary — Flora blue.700 #406CC4 */
+  const primaryFg = getColor({ theme, variable: 'foreground.primary' })
+  const primaryBorder = getColor({ theme, variable: 'border.primaryEmphasis' })
   const defaultFg = getColor({ theme, variable: 'foreground.default' })
   const disabledFg = getColor({ theme, variable: 'foreground.disabled' })
 
@@ -26,27 +26,31 @@ export const tab = ({ theme, $isVertical }: ITabThemeProps) => {
       border-radius: 0;
     }
 
-    /* Selected (Ticket forms or Service Catalog forms) — Flora blue */
+    /* Unselected hover — FG/primary #406CC4 */
+    &&:hover:not([aria-selected='true']),
+    &&:active:not([aria-selected='true']) {
+      color: ${primaryFg} !important;
+    }
+
+    /* Selected — FG/primary + blue underline */
     &&[aria-selected='true'] {
-      color: ${selectedFg};
-      border-color: ${selectedBorder};
+      color: ${primaryFg};
+      border-color: ${primaryBorder};
     }
 
-    &&:hover {
-      color: ${selectedFg};
-    }
-
-    &&:active {
-      border-color: currentcolor;
-      color: ${selectedFg};
+    &&[aria-selected='true']:hover,
+    &&[aria-selected='true']:active,
+    &&[aria-selected='true']:focus,
+    &&[aria-selected='true']:focus-visible {
+      color: ${primaryFg} !important;
+      border-color: ${primaryBorder};
     }
 
     &&[aria-disabled='true'] {
       border-color: transparent;
-      color: ${disabledFg};
+      color: ${disabledFg} !important;
     }
 
-    /* Flora focus ring — rounded outline around the tab label */
     &&:focus-visible::before,
     &&[data-garden-focus-visible]::before {
       border-radius: ${theme.borderRadii.md};
@@ -55,7 +59,7 @@ export const tab = ({ theme, $isVertical }: ITabThemeProps) => {
     ${$isVertical &&
     css`
       &&[aria-selected='true'] {
-        border-inline-start-color: ${selectedBorder};
+        border-inline-start-color: ${primaryBorder};
         border-bottom-color: transparent;
       }
     `}

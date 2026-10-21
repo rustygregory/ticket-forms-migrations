@@ -27,15 +27,14 @@ import Breadcrumbs from './Breadcrumbs'
 import { AVAILABLE_FIELDS, DEFAULT_FORM_FIELDS } from '../data/forms'
 import {
   ChevronDownIcon,
-  ChevronLeftIcon,
   FieldTypeIcon,
   GripIcon,
   LockIcon,
-  PencilIcon,
   PlusIcon,
   SearchIcon,
   XIcon,
 } from './icons'
+import { useSuccessToast } from '../hooks/useSuccessToast'
 
 const Page = styled.div`
   display: flex;
@@ -108,61 +107,6 @@ const ActiveTag = styled(StatusTag)`
   }
 `
 
-/* V1 only — inline-editable page title (legacy comparison) */
-const EditableTitleRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 32px; /* page title → page content */
-`
-
-const BackButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: #646864;
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-
-  &:hover {
-    background: #eae9e8;
-    color: #2f3130;
-  }
-`
-
-const EditableTitleInput = styled.input`
-  flex: 1;
-  min-width: 0;
-  max-width: 480px;
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  font-size: 26px;
-  line-height: 32px;
-  font-weight: 400;
-  color: #2f3130;
-  padding: 0 4px;
-  border-radius: 4px;
-
-  &:hover,
-  &:focus {
-    outline: none;
-    background: #f7f7f7;
-  }
-`
-
-const EditAffordance = styled.span`
-  display: inline-flex;
-  color: #646864;
-  flex-shrink: 0;
-`
-
 const SettingsField = styled.div`
   width: 400px;
   max-width: 100%;
@@ -192,26 +136,26 @@ const Settings = styled.div`
 const BrandsBlock = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Associated brands → checkbox */
 `
 
-const SectionHeading = styled.h2`
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 600;
-  color: #2f3130;
-  margin: 0;
-`
-
-/* Field list + Available panel share one top edge */
+/* Row 1: Ticket fields label (left only). Row 2: field list + Available panel aligned. */
 const Builder = styled.div`
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(412px, 412px);
-  gap: 24px;
+  grid-template-rows: auto auto;
+  column-gap: 24px;
+  row-gap: 8px;
   align-items: start;
 `
 
+const FieldsLabel = styled.div`
+  grid-column: 1;
+  grid-row: 1;
+`
+
 const FormColumn = styled.div`
+  grid-column: 1;
+  grid-row: 2;
   min-width: 0;
 `
 
@@ -335,6 +279,8 @@ const Spacer = styled.span`
 `
 
 const Panel = styled.aside`
+  grid-column: 2;
+  grid-row: 2; /* Align with Subject / ticket field list, not Ticket fields label */
   min-width: 412px;
   width: 412px;
   border: 1px solid #d8dcde;
@@ -344,17 +290,20 @@ const Panel = styled.aside`
   box-sizing: border-box;
 `
 
+/* Flora Typography Medium / Semibold — 14/20 */
 const PanelTitle = styled.h2`
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 600;
   color: #2f3130;
   margin: 0;
 `
 
+/* Flora Typography Medium / Regular — 14/20 */
 const PanelHint = styled.p`
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
   color: #646864;
   margin: 0 0 16px;
 `
@@ -579,7 +528,8 @@ function FormDropZone({ children, isOver }) {
   )
 }
 
-export default function AddForm({ forms = [], onSave, onUpdate, onDelete, version = 'v2' }) {
+export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
+  const showSuccessToast = useSuccessToast()
   const navigate = useNavigate()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
@@ -588,11 +538,8 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete, versio
   const isEdit = Boolean(existing)
   /* Default forms always expose end-user editability; the control is locked in product. */
   const isDefaultForm = Boolean(existing?.badges?.includes('Default'))
-  /* V1 create: legacy editable H1. Edit + V2: breadcrumbs, static title + Active, Form title inputs. */
-  const useLegacyTitle = version === 'v1' && !isEdit
 
-  const [pageTitle, setPageTitle] = useState(existing?.name || 'New form')
-  const [formTitle, setFormTitle] = useState(existing?.name || '')
+  const [formTitle, setFormTitle] = useState(existing?.name || (isEdit ? '' : 'Awesome form'))
   const [endUserTitle, setEndUserTitle] = useState(existing?.endUserTitle || '')
   const [editableForEndUsers, setEditableForEndUsers] = useState(
     isDefaultForm ? true : (existing?.editableForEndUsers ?? false),
@@ -630,6 +577,16 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete, versio
       if (isEdit && existing) {
         onUpdate?.(existing.id, { active: false })
       }
+      showSuccessToast('Form deactivated', 'The ticket form has been deactivated.')
+      return
+    }
+
+    if (value === 'activate') {
+      setIsActive(true)
+      if (isEdit && existing) {
+        onUpdate?.(existing.id, { active: true })
+      }
+      showSuccessToast('Form activated', 'The ticket form has been activated.')
       return
     }
 
@@ -644,7 +601,7 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete, versio
 
   const headingLabel = isEdit
     ? formTitle.trim() || existing?.name || 'Untitled form'
-    : 'New form'
+    : formTitle.trim() || 'Awesome form'
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }))
 
@@ -696,9 +653,7 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete, versio
   }
 
   const handleSave = () => {
-    const savedName = useLegacyTitle
-      ? pageTitle.trim() || 'Untitled form'
-      : formTitle.trim() || 'Untitled form'
+    const savedName = formTitle.trim() || 'Untitled form'
     const endUserEditable = isDefaultForm ? true : editableForEndUsers
     const payload = {
       name: savedName,
@@ -717,11 +672,13 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete, versio
 
     if (isEdit) {
       onUpdate?.(existing.id, payload)
+      showSuccessToast('Form saved', 'Your changes have been saved.')
     } else {
       onSave?.({
         id: `form-${Date.now()}`,
         ...payload,
       })
+      showSuccessToast('Form created', 'The ticket form has been created.')
     }
     navigate('/forms')
   }
@@ -740,86 +697,70 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete, versio
   return (
     <Page>
       <Container>
-        {useLegacyTitle ? (
-          <EditableTitleRow>
-            <BackButton type="button" aria-label="Back to forms" onClick={() => navigate('/forms')}>
-              <ChevronLeftIcon />
-            </BackButton>
-            <EditableTitleInput
-              aria-label="Form title"
-              value={pageTitle}
-              onChange={e => setPageTitle(e.target.value)}
-            />
-            <EditAffordance aria-hidden="true">
-              <PencilIcon />
-            </EditAffordance>
-          </EditableTitleRow>
-        ) : (
-          <>
-            <Breadcrumbs
-              items={[
-                { label: 'Objects and rules' },
-                { label: 'Tickets' },
-                { label: 'Forms', path: '/forms' },
-                { label: headingLabel },
-              ]}
-            />
-            <TitleRow>
-              <TitleGroup>
-                <Title>{headingLabel}</Title>
-                {isDefaultForm && (
-                  <StatusTag size="medium" isPill>
-                    <span>Default</span>
-                  </StatusTag>
-                )}
-                {!isDefaultForm && !editableForEndUsers && (
-                  <StatusTag size="medium" isPill>
-                    <span>Agent only</span>
-                  </StatusTag>
-                )}
-                {isActive ? (
-                  <ActiveTag size="medium" isPill>
-                    <span>Active</span>
-                  </ActiveTag>
-                ) : (
-                  /* Default Tag = neutral grey (omit hue); Flora/Garden subtle status */
-                  <StatusTag size="medium" isPill>
-                    <span>Inactive</span>
-                  </StatusTag>
-                )}
-              </TitleGroup>
-              <Menu
-                placement="bottom-end"
-                onChange={handleActionsChange}
-                button={props => (
-                  <ActionsButton {...props} isPill aria-label="Form actions">
-                    Actions
-                    <Button.EndIcon>
-                      <ChevronDownIcon size={16} />
-                    </Button.EndIcon>
-                  </ActionsButton>
-                )}
-              >
-                <Item value="deactivate" label="Deactivate" />
-                <Item value="delete" label="Delete" type="danger" />
-              </Menu>
-            </TitleRow>
-          </>
-        )}
+        <Breadcrumbs
+          items={[
+            { label: 'Objects and rules' },
+            { label: 'Tickets' },
+            { label: 'Forms', path: '/forms' },
+            { label: headingLabel },
+          ]}
+        />
+        <TitleRow>
+          <TitleGroup>
+            <Title>{headingLabel}</Title>
+            {isDefaultForm && (
+              <StatusTag size="medium" isPill>
+                <span>Default</span>
+              </StatusTag>
+            )}
+            {!isDefaultForm && !editableForEndUsers && (
+              <StatusTag size="medium" isPill>
+                <span>Agent only</span>
+              </StatusTag>
+            )}
+            {isActive ? (
+              <ActiveTag size="medium" isPill>
+                <span>Active</span>
+              </ActiveTag>
+            ) : (
+              /* Default Tag = neutral grey (omit hue); Flora/Garden subtle status */
+              <StatusTag size="medium" isPill>
+                <span>Inactive</span>
+              </StatusTag>
+            )}
+          </TitleGroup>
+          <Menu
+            placement="bottom-end"
+            onChange={handleActionsChange}
+            button={props => (
+              <ActionsButton {...props} isPill aria-label="Form actions">
+                Actions
+                <Button.EndIcon>
+                  <ChevronDownIcon size={16} />
+                </Button.EndIcon>
+              </ActionsButton>
+            )}
+          >
+            {isActive ? (
+              <Item value="deactivate" label="Deactivate" />
+            ) : (
+              <Item value="activate" label="Activate" />
+            )}
+            <Item value="delete" label="Delete" type="danger" />
+          </Menu>
+        </TitleRow>
 
         <Settings>
-          {!useLegacyTitle && (
-            <SettingsField>
-              <Field>
-                <Label>Form title</Label>
-                <Input
-                  value={formTitle}
-                  onChange={e => setFormTitle(e.target.value)}
-                  placeholder=""
-                />
-              </Field>
-            </SettingsField>
-          )}
+          <SettingsField>
+            <Field>
+              <Label>Form title</Label>
+              <Input
+                value={formTitle}
+                onChange={e => setFormTitle(e.target.value)}
+                placeholder=""
+              />
+            </Field>
+          </SettingsField>
 
           <EndUserSettings>
             <Field>
@@ -837,21 +778,21 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete, versio
               </Checkbox>
             </Field>
 
-            <NestedSettingsField>
-              <Field>
-                <Label>Title shown to end users</Label>
-                <Input
-                  value={endUserTitle}
-                  onChange={e => setEndUserTitle(e.target.value)}
-                  placeholder=""
-                  disabled={isDefaultForm ? false : !editableForEndUsers}
-                />
-              </Field>
-            </NestedSettingsField>
+            {(isDefaultForm || editableForEndUsers) && (
+              <NestedSettingsField>
+                <Field>
+                  <Label>Title shown to end users</Label>
+                  <Input
+                    value={endUserTitle}
+                    onChange={e => setEndUserTitle(e.target.value)}
+                    placeholder=""
+                  />
+                </Field>
+              </NestedSettingsField>
+            )}
           </EndUserSettings>
 
           <BrandsBlock>
-            <SectionHeading>Associated brands</SectionHeading>
             <Field>
               <Checkbox
                 checked={applyToAllBrands}
@@ -872,6 +813,11 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete, versio
           onDragEnd={handleDragEnd}
         >
           <Builder>
+            <FieldsLabel>
+              <Field>
+                <Label>Ticket fields</Label>
+              </Field>
+            </FieldsLabel>
             <FormColumn>
               <FormDropZone isOver={overForm && activeDrag?.data?.current?.from === 'available'}>
                 <SortableContext items={fields.map(f => f.id)} strategy={verticalListSortingStrategy}>

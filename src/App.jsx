@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { HashRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { ToastProvider } from '@zendeskgarden/react-notifications'
 import { ThemeProvider } from './flora-theme/elements/ThemeProvider'
-import PrototypeBar from './prototype-bar/PrototypeBar'
+import PrototypeBar, { BAR_HEIGHT } from './prototype-bar/PrototypeBar'
 import InspectLayer from './inspect/InspectLayer'
 import CommentLayer from './comments/CommentLayer'
 import TopBar from './components/TopBar'
@@ -13,6 +14,16 @@ import AddForm from './components/AddForm'
 import { INITIAL_FORMS } from './data/forms'
 import { VERSIONS } from './data/versions'
 import './App.css'
+
+/* 72px below prototype console, 40px from right */
+const toastPlacementProps = {
+  'top-end': {
+    style: {
+      top: BAR_HEIGHT + 72,
+      right: 40,
+    },
+  },
+}
 
 const Shell = styled.div`
   display: flex;
@@ -88,7 +99,6 @@ function Prototype() {
                 path="/forms/new"
                 element={
                   <AddForm
-                    version={version}
                     forms={forms}
                     onSave={form => setForms(current => [form, ...current])}
                   />
@@ -99,7 +109,6 @@ function Prototype() {
                 element={
                   <AddForm
                     key={location.pathname}
-                    version={version}
                     forms={forms}
                     onUpdate={(formId, updates) =>
                       setForms(current =>
@@ -136,9 +145,11 @@ function Prototype() {
 export default function App() {
   return (
     <ThemeProvider>
-      <HashRouter>
-        <Prototype />
-      </HashRouter>
+      <ToastProvider placementProps={toastPlacementProps} zIndex={10000}>
+        <HashRouter>
+          <Prototype />
+        </HashRouter>
+      </ToastProvider>
     </ThemeProvider>
   )
 }

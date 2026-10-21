@@ -20,7 +20,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { Button, IconButton, SplitButton, ChevronButton } from '@zendeskgarden/react-buttons'
 import { Item, ItemGroup, Menu } from '@zendeskgarden/react-dropdowns'
 import { Checkbox, Field, Label, Hint, MediaInput, Radio, Textarea } from '@zendeskgarden/react-forms'
-import { Drawer } from '@zendeskgarden/react-modals'
+import { Drawer, Modal } from '@zendeskgarden/react-modals'
 import { Tabs } from '@zendeskgarden/react-tabs'
 import { Tag } from '@zendeskgarden/react-tags'
 import Breadcrumbs from './Breadcrumbs'
@@ -40,6 +40,7 @@ import {
   SearchIcon,
 } from './icons'
 import { BAR_HEIGHT } from '../prototype-bar/PrototypeBar'
+import { useSuccessToast } from '../hooks/useSuccessToast'
 
 /* Flora Layout: 12px from work-area top to breadcrumb; inset.xl (40) sides */
 const Container = styled.div`
@@ -166,6 +167,11 @@ const FilterButton = styled(Button)`
     flex-shrink: 0;
     margin-inline-end: 0;
     opacity: 1;
+    color: #646864; /* FG/subtle */
+  }
+
+  && [data-garden-id='buttons.icon'] svg {
+    color: #646864; /* FG/subtle */
   }
 
   ${p =>
@@ -183,7 +189,11 @@ const FilterButton = styled(Button)`
 const FilterChevron = styled.span`
   display: inline-flex;
   margin-inline-start: 4px;
-  color: inherit;
+  color: #646864; /* FG/subtle */
+
+  svg {
+    color: #646864;
+  }
 `
 
 /* Flora filter tags: category semibold + value regular */
@@ -195,13 +205,22 @@ const FilterTagValue = styled.span`
   font-weight: 400;
 `
 
+/* Tags + Clear filters — 8px between chips group and Clear */
 const FilterRow = styled.div`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 12px;
   min-height: 28px;
+`
+
+/* 4px between filter tags */
+const FilterChips = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
 `
 
 const List = styled.ul`
@@ -370,62 +389,134 @@ function formMatchesStatus(form, statusValue) {
   return true
 }
 
-function SortableFormRow({ form, onOpen }) {
+function SortableFormRow({ form, onOpen, onSetActive }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: form.id,
   })
   const isDefault = form.badges?.includes('Default')
   const otherBadges = (form.badges || []).filter(badge => badge !== 'Default')
+  /* Same blocked modals as edit form for default ticket form */
+  const [blockedModal, setBlockedModal] = useState(null)
+  const showSuccessToast = useSuccessToast()
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   }
 
+  const closeBlockedModal = () => setBlockedModal(null)
+
+  const handleMenuChange = ({ value }) => {
+    if (!value) return
+
+    if (value === 'deactivate') {
+      if (isDefault) {
+        setBlockedModal('deactivate')
+        return
+      }
+      onSetActive?.(form.id, false)
+      showSuccessToast('Form deactivated', 'The ticket form has been deactivated.')
+      return
+    }
+
+    if (value === 'activate') {
+      onSetActive?.(form.id, true)
+      showSuccessToast('Form activated', 'The ticket form has been activated.')
+      return
+    }
+
+    if (value === 'make-default') {
+      if (isDefault) {
+        setBlockedModal('make-default')
+      }
+    }
+  }
+
   return (
-    <Row ref={setNodeRef} style={style} $dragging={isDragging}>
-      <Grip type="button" aria-label={`Reorder ${form.name}`} {...attributes} {...listeners}>
-        <GripIcon />
-      </Grip>
-      <FormNameButton type="button" onClick={() => onOpen?.(form.id)}>
-        {form.name}
-      </FormNameButton>
-      <Badges>
-        {isDefault && (
-          <ListTag size="medium" isPill>
-            <span>Default</span>
-          </ListTag>
-        )}
-        {otherBadges.map(badge => (
-          <ListTag key={badge} size="medium" isPill>
-            <span>{badge}</span>
-          </ListTag>
-        ))}
-        {form.active ? (
-          <ActiveListTag size="medium" isPill>
-            <span>Active</span>
-          </ActiveListTag>
-        ) : (
-          <ListTag size="medium" isPill>
-            <span>Inactive</span>
-          </ListTag>
-        )}
-      </Badges>
-      <Spacer />
-      <Menu
-        placement="bottom-end"
-        button={props => (
-          <IconButton {...props} aria-label={`More actions for ${form.name}`} size="small">
-            <OverflowIcon />
-          </IconButton>
-        )}
-      >
-        <Item value="conditions" label="Conditions" />
-        <Item value="clone" label="Clone" />
-        {!isDefault && <Item value="make-default" label="Make default" />}
-        {!isDefault && <Item value="deactivate" label="Deactivate" type="danger" />}
-      </Menu>
-    </Row>
+    <>
+      <Row ref={setNodeRef} style={style} $dragging={isDragging}>
+        <Grip type="button" aria-label={`Reorder ${form.name}`} {...attributes} {...listeners}>
+          <GripIcon />
+        </Grip>
+        <FormNameButton type="button" onClick={() => onOpen?.(form.id)}>
+          {form.name}
+        </FormNameButton>
+        <Badges>
+          {isDefault && (
+            <ListTag size="medium" isPill>
+              <span>Default</span>
+            </ListTag>
+          )}
+          {otherBadges.map(badge => (
+            <ListTag key={badge} size="medium" isPill>
+              <span>{badge}</span>
+            </ListTag>
+          ))}
+          {form.active ? (
+            <ActiveListTag size="medium" isPill>
+              <span>Active</span>
+            </ActiveListTag>
+          ) : (
+            <ListTag size="medium" isPill>
+              <span>Inactive</span>
+            </ListTag>
+          )}
+        </Badges>
+        <Spacer />
+        <Menu
+          placement="bottom-end"
+          onChange={handleMenuChange}
+          button={props => (
+            <IconButton {...props} aria-label={`More actions for ${form.name}`} size="small">
+              <OverflowIcon />
+            </IconButton>
+          )}
+        >
+          <Item value="conditions" label="Conditions" />
+          <Item value="clone" label="Clone" />
+          <Item value="make-default" label="Make default" />
+          {form.active ? (
+            isDefault ? (
+              <Item value="deactivate" label="Deactivate" />
+            ) : (
+              <Item value="deactivate" label="Deactivate" type="danger" />
+            )
+          ) : (
+            <Item value="activate" label="Activate" />
+          )}
+        </Menu>
+      </Row>
+
+      {blockedModal === 'deactivate' && (
+        <Modal onClose={closeBlockedModal}>
+          <Modal.Header tag="h2">Cannot deactivate default form</Modal.Header>
+          <Modal.Body>You cannot deactivate a default form.</Modal.Body>
+          <Modal.Footer>
+            <Modal.FooterItem>
+              <Button isBasic isPill onClick={closeBlockedModal}>
+                Close
+              </Button>
+            </Modal.FooterItem>
+          </Modal.Footer>
+          <Modal.Close aria-label="Close modal" />
+        </Modal>
+      )}
+
+      {blockedModal === 'make-default' && (
+        <Modal onClose={closeBlockedModal}>
+          <Modal.Header tag="h2">Ticket form is already default</Modal.Header>
+          <Modal.Body>This ticket form is already the default form.</Modal.Body>
+          <Modal.Footer>
+            <Modal.FooterItem>
+              <Button isBasic isPill onClick={closeBlockedModal}>
+                Close
+              </Button>
+            </Modal.FooterItem>
+          </Modal.Footer>
+          <Modal.Close aria-label="Close modal" />
+        </Modal>
+      )}
+    </>
   )
 }
 
@@ -758,32 +849,36 @@ export default function FormsList({ version = 'v2', forms, setForms }) {
       </Toolbar>
 
       <FilterRow>
-        {statusFilter && (
-          <Tag isPill={false}>
-            <span>
-              <FilterTagCategory>Status</FilterTagCategory>
-              {' '}
-              <FilterTagValue>{statusLabel(statusFilter)}</FilterTagValue>
-            </span>
-            <Tag.Close
-              aria-label={`Remove Status ${statusLabel(statusFilter)} filter`}
-              onClick={() => setStatusFilter(null)}
-            />
-          </Tag>
+        {hasFilterChips && (
+          <FilterChips>
+            {statusFilter && (
+              <Tag isPill={false}>
+                <span>
+                  <FilterTagCategory>Status</FilterTagCategory>
+                  {' '}
+                  <FilterTagValue>{statusLabel(statusFilter)}</FilterTagValue>
+                </span>
+                <Tag.Close
+                  aria-label={`Remove Status ${statusLabel(statusFilter)} filter`}
+                  onClick={() => setStatusFilter(null)}
+                />
+              </Tag>
+            )}
+            {brandFilter.map(value => (
+              <Tag key={value} isPill={false}>
+                <span>
+                  <FilterTagCategory>Brand</FilterTagCategory>
+                  {' '}
+                  <FilterTagValue>{brandLabel(value)}</FilterTagValue>
+                </span>
+                <Tag.Close
+                  aria-label={`Remove Brand ${brandLabel(value)} filter`}
+                  onClick={() => setBrandFilter(current => current.filter(v => v !== value))}
+                />
+              </Tag>
+            ))}
+          </FilterChips>
         )}
-        {brandFilter.map(value => (
-          <Tag key={value} isPill={false}>
-            <span>
-              <FilterTagCategory>Brand</FilterTagCategory>
-              {' '}
-              <FilterTagValue>{brandLabel(value)}</FilterTagValue>
-            </span>
-            <Tag.Close
-              aria-label={`Remove Brand ${brandLabel(value)} filter`}
-              onClick={() => setBrandFilter(current => current.filter(v => v !== value))}
-            />
-          </Tag>
-        ))}
         {showClear && (
           <Button isBasic size="small" onClick={clearFilters}>
             Clear filters
@@ -811,6 +906,11 @@ export default function FormsList({ version = 'v2', forms, setForms }) {
                   key={form.id}
                   form={form}
                   onOpen={formId => navigate(`/forms/${formId}`)}
+                  onSetActive={(formId, active) =>
+                    setForms(current =>
+                      current.map(f => (f.id === formId ? { ...f, active } : f)),
+                    )
+                  }
                 />
               ))}
             </List>

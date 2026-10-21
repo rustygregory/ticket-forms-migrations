@@ -136,12 +136,12 @@ const GoToButton = styled.button`
   padding: 6px 12px;
   font-size: 13px;
   font-weight: 500;
-  color: ${(p) => (p.disabled ? '#a4a9ac' : '#1f73b7')};
+  color: ${(p) => (p.disabled ? '#a4a9ac' : '#406cc4')};
   cursor: ${(p) => (p.disabled ? 'default' : 'pointer')};
 
   &:hover {
     background: ${(p) => (p.disabled ? '#fff' : '#f8f9f9')};
-    border-color: ${(p) => (p.disabled ? '#d8dcde' : '#1f73b7')};
+    border-color: ${(p) => (p.disabled ? '#d8dcde' : '#406cc4')};
   }
 `
 
