@@ -1,0 +1,42 @@
+{
+  "name": "ticket-forms-migrations",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@zendeskgarden/react-avatars": "^9.16.1",
+    "@zendeskgarden/react-breadcrumbs": "^9.16.1",
+    "@zendeskgarden/react-buttons": "^9.16.1",
+    "@zendeskgarden/react-dropdowns": "^9.16.1",
+    "@zendeskgarden/react-forms": "^9.16.1",
+    "@zendeskgarden/react-modals": "^9.16.1",
+    "@zendeskgarden/react-tabs": "^9.16.1",
+    "@zendeskgarden/react-tags": "^9.16.1",
+    "@zendeskgarden/react-theming": "^9.16.1",
+    "@zendeskgarden/react-tooltips": "^9.16.1",
+    "@zendeskgarden/react-typography": "^9.16.1",
+    "@zendeskgarden/svg-icons": "^8.4.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.6",
+    "styled-components": "^6.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "oxlint": "^1.81.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vite-plugin-svgr": "^5.2.0"
+  }
+}
