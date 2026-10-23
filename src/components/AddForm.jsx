@@ -539,7 +539,7 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
   /* Default forms always expose end-user editability; the control is locked in product. */
   const isDefaultForm = Boolean(existing?.badges?.includes('Default'))
 
-  const [formTitle, setFormTitle] = useState(existing?.name || (isEdit ? '' : 'Awesome form'))
+  const [formTitle, setFormTitle] = useState(existing?.name || '')
   const [endUserTitle, setEndUserTitle] = useState(existing?.endUserTitle || '')
   const [editableForEndUsers, setEditableForEndUsers] = useState(
     isDefaultForm ? true : (existing?.editableForEndUsers ?? false),
@@ -601,7 +601,7 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
 
   const headingLabel = isEdit
     ? formTitle.trim() || existing?.name || 'Untitled form'
-    : formTitle.trim() || 'Awesome form'
+    : 'New form'
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }))
 

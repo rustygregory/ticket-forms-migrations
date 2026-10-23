@@ -1,4 +1,4 @@
-# Ticket forms migrations
+# Ticket forms migration
 
 Flora prototype of Admin Center **Tickets → Forms**, migrating Garden-era screens to Flora patterns.
 

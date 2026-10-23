@@ -74,7 +74,7 @@ function Prototype() {
   return (
     <Shell>
       <PrototypeBar
-        title="Ticket forms migrations"
+        title="Ticket forms migration"
         meta="Started Oct 2026"
         versions={VERSIONS}
         versionId={version}

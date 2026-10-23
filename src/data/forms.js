@@ -38,7 +38,7 @@ export const INITIAL_FORMS = [
   },
   {
     id: 'new',
-    name: 'Awesome form',
+    name: 'New form',
     endUserTitle: '',
     badges: ['Agent only'],
     active: true,
