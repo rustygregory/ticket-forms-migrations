@@ -1,25 +1,23 @@
 import styled from 'styled-components'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { MD, SM } from '@zendeskgarden/react-typography'
 
-/* Flora Global Nav — Subnavigation approximation (240px) */
+/* Flora Global Nav — Subnav (Objects & rules), 240px */
 const NavPanel = styled.nav`
   width: 240px;
   min-width: 240px;
-  background: #f7f7f7;
+  background: #f7f7f7; /* bg/subtle — matches Global Nav canvas */
   overflow-y: auto;
-  padding: 12px 8px 16px;
+  padding: 8px;
   height: 100%;
   box-sizing: border-box;
   flex-shrink: 0;
 `
 
-const Heading = styled.h2`
+const Heading = styled(MD)`
   margin: 0 8px 12px;
   padding: 4px 4px 8px;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 600;
-  color: #2f3130;
+  color: #2f3130; /* fg/default */
 `
 
 const Group = styled.div`
@@ -30,22 +28,19 @@ const Group = styled.div`
   }
 `
 
-const GroupLabel = styled.div`
+const GroupLabel = styled(SM)`
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 0 8px 4px;
   padding: 8px 4px 4px;
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 600;
-  color: #646864;
+  color: #646864; /* fg/subtle */
 
   &::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: #eae9e8;
+    background: #eae9e8; /* grey.200 */
   }
 `
 
@@ -60,8 +55,8 @@ const NavItem = styled.button`
   background: ${p => (p.$active ? '#2f3130' : 'transparent')};
   color: ${p => (p.$active ? '#fff' : '#2f3130')};
   font-family: inherit;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: inherit;
+  line-height: inherit;
   font-weight: 400;
   text-align: left;
   cursor: ${p => (p.$clickable ? 'pointer' : 'default')};
@@ -73,6 +68,10 @@ const NavItem = styled.button`
   }
 `
 
+const NavItemLabel = styled(MD)`
+  color: inherit;
+`
+
 function Item({ active, clickable, onClick, children }) {
   return (
     <NavItem
@@ -82,7 +81,7 @@ function Item({ active, clickable, onClick, children }) {
       onClick={clickable ? onClick : undefined}
       aria-current={active ? 'page' : undefined}
     >
-      {children}
+      <NavItemLabel tag="span">{children}</NavItemLabel>
     </NavItem>
   )
 }
@@ -94,10 +93,14 @@ export default function AdminCenterNav() {
 
   return (
     <NavPanel aria-label="Objects and rules">
-      <Heading>Objects and rules</Heading>
+      <Heading tag="h2" isBold>
+        Objects and rules
+      </Heading>
 
       <Group>
-        <GroupLabel>Tickets</GroupLabel>
+        <GroupLabel tag="div" isBold>
+          Tickets
+        </GroupLabel>
         <Item active={isForms} clickable onClick={() => navigate('/forms')}>
           Forms
         </Item>
@@ -109,13 +112,17 @@ export default function AdminCenterNav() {
       </Group>
 
       <Group>
-        <GroupLabel>Custom objects</GroupLabel>
+        <GroupLabel tag="div" isBold>
+          Custom objects
+        </GroupLabel>
         <Item>Templates</Item>
         <Item>Objects</Item>
       </Group>
 
       <Group>
-        <GroupLabel>Omnichannel routing</GroupLabel>
+        <GroupLabel tag="div" isBold>
+          Omnichannel routing
+        </GroupLabel>
         <Item>Routing configuration</Item>
         <Item>Queues</Item>
         <Item>Capacity rules</Item>
@@ -124,7 +131,9 @@ export default function AdminCenterNav() {
       </Group>
 
       <Group>
-        <GroupLabel>Business rules</GroupLabel>
+        <GroupLabel tag="div" isBold>
+          Business rules
+        </GroupLabel>
         <Item>Triggers</Item>
         <Item>Automations</Item>
         <Item>Skills</Item>

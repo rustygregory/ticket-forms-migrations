@@ -2,25 +2,31 @@ import { useState } from 'react'
 import { HashRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { ToastProvider } from '@zendeskgarden/react-notifications'
+import { TopBar, MainNav } from 'zendesk-globalnav-template/chrome'
 import { ThemeProvider } from './flora-theme/elements/ThemeProvider'
 import PrototypeBar, { BAR_HEIGHT } from './prototype-bar/PrototypeBar'
 import InspectLayer from './inspect/InspectLayer'
 import CommentLayer from './comments/CommentLayer'
-import TopBar from './components/TopBar'
-import MainNav from './components/MainNav'
 import AdminCenterNav from './components/AdminCenterNav'
 import FormsList from './components/FormsList'
+import FormsListV3 from './components/FormsList.v3'
 import AddForm from './components/AddForm'
+import AddFormV3 from './components/AddForm.v3'
 import { INITIAL_FORMS } from './data/forms'
 import { VERSIONS } from './data/versions'
 import './App.css'
 
-/* 72px below prototype console, 40px from right */
+/* Objects & rules in Admin Center MainNav (zendesk-globalnav-template) */
+const OBJECTS_AND_RULES_NAV_ID = 6
+
+/* Flora Global Nav Overview: Notifications sit 16px top + 16px side from main content.
+   Fixed toasts clear PrototypeBar + TopBar (48px), then apply the 16px inset. */
+const TOP_BAR_HEIGHT = 48
 const toastPlacementProps = {
   'top-end': {
     style: {
-      top: BAR_HEIGHT + 72,
-      right: 40,
+      top: BAR_HEIGHT + TOP_BAR_HEIGHT + 16,
+      right: 16,
     },
   },
 }
@@ -38,16 +44,25 @@ const PageContainer = styled.div`
   flex: 1;
   min-height: 0;
   width: 100%;
-  background-color: #f7f7f7;
+  background-color: #f7f7f7; /* bg/subtle — Global Nav canvas */
   overflow: hidden;
+  position: relative;
+  isolation: isolate;
 `
 
-const ContentRow = styled.div`
+const Workspace = styled.div`
   display: flex;
   flex: 1;
   min-height: 0;
   width: 100%;
   overflow: hidden;
+  z-index: 1;
+`
+
+const NavRails = styled.div`
+  display: flex;
+  flex-shrink: 0;
+  min-height: 0;
 `
 
 const WorkArea = styled.div`
@@ -64,12 +79,20 @@ const WorkArea = styled.div`
 
 function Prototype() {
   const [forms, setForms] = useState(INITIAL_FORMS)
-  const [version, setVersion] = useState('v2')
+  /* Default V3 = Flora audit applied. V1/V2 live under Archive in the switcher. */
+  const [version, setVersion] = useState('v3')
   const [inspectSlot, setInspectSlot] = useState(null)
   const [inspectActive, setInspectActive] = useState(false)
   const [commentSlot, setCommentSlot] = useState(null)
+  const [activeNavItem, setActiveNavItem] = useState(OBJECTS_AND_RULES_NAV_ID)
+  const [isSubnavExpanded, setIsSubnavExpanded] = useState(true)
   const location = useLocation()
   const navigate = useNavigate()
+  const isV3 = version === 'v3'
+  const List = isV3 ? FormsListV3 : FormsList
+  const FormScreen = isV3 ? AddFormV3 : AddForm
+  /* V3 keeps V2 filter-drawer behavior; only Flora visual/component fixes differ. */
+  const listVersion = isV3 ? 'v2' : version
 
   return (
     <Shell>
@@ -84,21 +107,29 @@ function Prototype() {
         inspectActive={inspectActive}
       />
       <PageContainer>
-        <TopBar />
-        <ContentRow>
-          <MainNav />
-          <AdminCenterNav />
+        <TopBar currentProduct="admin-center" onProductChange={() => {}} />
+        <Workspace>
+          <NavRails>
+            <MainNav
+              currentProduct="admin-center"
+              activeNavItem={activeNavItem}
+              setActiveNavItem={setActiveNavItem}
+              isSubnavExpanded={isSubnavExpanded}
+              setIsSubnavExpanded={setIsSubnavExpanded}
+            />
+            {isSubnavExpanded && <AdminCenterNav />}
+          </NavRails>
           <WorkArea data-comment-root="true" data-inspect-root="true">
             <Routes>
               <Route path="/" element={<Navigate to="/forms" replace />} />
               <Route
                 path="/forms"
-                element={<FormsList version={version} forms={forms} setForms={setForms} />}
+                element={<List version={listVersion} forms={forms} setForms={setForms} />}
               />
               <Route
                 path="/forms/new"
                 element={
-                  <AddForm
+                  <FormScreen
                     forms={forms}
                     onSave={form => setForms(current => [form, ...current])}
                   />
@@ -107,7 +138,7 @@ function Prototype() {
               <Route
                 path="/forms/:id"
                 element={
-                  <AddForm
+                  <FormScreen
                     key={location.pathname}
                     forms={forms}
                     onUpdate={(formId, updates) =>
@@ -123,7 +154,7 @@ function Prototype() {
               />
             </Routes>
           </WorkArea>
-        </ContentRow>
+        </Workspace>
       </PageContainer>
 
       <InspectLayer

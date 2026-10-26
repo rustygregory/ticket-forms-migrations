@@ -63,6 +63,15 @@ const colors = {
         medium: 'rgba(neutralHue.1200, 800)',
         large: 'rgba(neutralHue.1200, 1000)',
       },
+      /* Flora Tag subtle mint (Color = Mint, Type = Default) — Inspect: tag/bg/mint, tag/fg/mint */
+      tag: {
+        bg: {
+          mint: '#d5f2e3',
+        },
+        fg: {
+          mint: '#153725',
+        },
+      },
     },
     light: {
       background: {
@@ -110,6 +119,15 @@ const colors = {
         small: 'rgba(neutralHue.1200, 200)',
         medium: 'rgba(neutralHue.1200, 200)',
         large: 'rgba(neutralHue.1200, 200)',
+      },
+      /* Flora Tag subtle mint (Color = Mint, Type = Default) — Inspect: tag/bg/mint, tag/fg/mint */
+      tag: {
+        bg: {
+          mint: '#d5f2e3',
+        },
+        fg: {
+          mint: '#153725',
+        },
       },
     },
   },

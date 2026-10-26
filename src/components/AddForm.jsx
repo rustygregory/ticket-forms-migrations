@@ -23,6 +23,7 @@ import { Item, Menu } from '@zendeskgarden/react-dropdowns'
 import { Checkbox, Field, Label, Hint, Input, MediaInput } from '@zendeskgarden/react-forms'
 import { Modal } from '@zendeskgarden/react-modals'
 import { Tag } from '@zendeskgarden/react-tags'
+import { getColor } from '@zendeskgarden/react-theming'
 import Breadcrumbs from './Breadcrumbs'
 import { AVAILABLE_FIELDS, DEFAULT_FORM_FIELDS } from '../data/forms'
 import {
@@ -99,11 +100,15 @@ const StatusTag = styled(Tag)`
   }
 `
 
-/* Green Active status (existing product treatment) */
-const ActiveTag = styled(StatusTag)`
+/* Active — Flora semantic tag/bg/mint + tag/fg/mint */
+const ActiveTag = styled(StatusTag).attrs({
+  'data-inspect-name': 'Tag',
+  'data-inspect-token-bg': 'tag/bg/mint',
+  'data-inspect-token-color': 'tag/fg/mint',
+})`
   && {
-    background-color: #d4f5e2;
-    color: #0b6e4f;
+    background-color: ${p => getColor({ theme: p.theme, variable: 'tag.bg.mint' })};
+    color: ${p => getColor({ theme: p.theme, variable: 'tag.fg.mint' })};
   }
 `
 

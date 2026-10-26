@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Vendored Global Nav package needs its published dist
+!vendor/zendesk-globalnav-template/dist/
+!vendor/zendesk-globalnav-template/dist/**
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

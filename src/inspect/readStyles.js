@@ -59,6 +59,9 @@ const HEX_TO_SEMANTIC = (() => {
   add(PALETTE.grey[300], 'border/default')
   add(PALETTE.grey[200], 'border/subtle')
   add(PALETTE.grey[600], 'border/emphasis')
+  /* Flora Tag subtle mint (Color = Mint, Type = Default) */
+  add('#d5f2e3', 'tag/bg/mint')
+  add('#153725', 'tag/fg/mint')
   return map
 })()
 
@@ -179,20 +182,37 @@ function componentName(el) {
   return null
 }
 
-function gatherTokenAttrs(el) {
-  const tokens = []
+function walkInspectAncestors(el, visit) {
   let node = el
   while (node && node.nodeType === 1) {
+    visit(node)
+    if (node.getAttribute?.('data-inspect-root') || node.getAttribute?.('data-comment-root')) break
+    node = node.parentElement
+  }
+}
+
+function gatherTokenAttrs(el) {
+  const tokens = []
+  walkInspectAncestors(el, (node) => {
     const raw = node.getAttribute?.('data-inspect-token')
     if (raw) {
       raw.split(/\s+/).filter(Boolean).forEach((t) => {
         if (!tokens.includes(t)) tokens.push(t)
       })
     }
-    if (node.getAttribute?.('data-inspect-root') || node.getAttribute?.('data-comment-root')) break
-    node = node.parentElement
-  }
+  })
   return tokens
+}
+
+/** Prefer explicit token attrs on the node or an ancestor (e.g. Tag wrapper). */
+function findTokenAttr(el, attrName) {
+  let found = null
+  walkInspectAncestors(el, (node) => {
+    if (found) return
+    const value = node.getAttribute?.(attrName)
+    if (value) found = value
+  })
+  return found
 }
 
 /**
@@ -229,15 +249,30 @@ export function readElementDetails(el) {
     'Text color',
     style.color,
     readDeclared(el, 'color'),
-    el.getAttribute('data-inspect-token-color'),
+    findTokenAttr(el, 'data-inspect-token-color'),
   )
   if (textColor) rows.push(textColor)
 
+  /* Prefer bg from an ancestor Tag when the click lands on the label (transparent). */
+  let bgComputed = style.backgroundColor
+  let bgDeclared = readDeclared(el, 'background-color')
+  const bgToken = findTokenAttr(el, 'data-inspect-token-bg')
+  if ((!normalizeColor(bgComputed) || bgToken) && bgToken) {
+    walkInspectAncestors(el, (node) => {
+      if (node === el) return
+      if (!node.hasAttribute?.('data-inspect-token-bg')) return
+      const nodeBg = window.getComputedStyle(node).backgroundColor
+      if (normalizeColor(nodeBg)) {
+        bgComputed = nodeBg
+        bgDeclared = readDeclared(node, 'background-color')
+      }
+    })
+  }
   const bgColor = colorEntry(
     'Background',
-    style.backgroundColor,
-    readDeclared(el, 'background-color'),
-    el.getAttribute('data-inspect-token-bg'),
+    bgComputed,
+    bgDeclared,
+    bgToken,
   )
   if (bgColor) rows.push(bgColor)
 
@@ -245,7 +280,7 @@ export function readElementDetails(el) {
     'Border color',
     style.borderTopColor,
     readDeclared(el, 'border-color') || readDeclared(el, 'border-top-color'),
-    el.getAttribute('data-inspect-token-border'),
+    findTokenAttr(el, 'data-inspect-token-border'),
   )
   if (borderColor && style.borderTopWidth && style.borderTopWidth !== '0px') {
     rows.push(borderColor)

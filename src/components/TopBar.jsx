@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { Avatar } from '@zendeskgarden/react-avatars'
 import { Field, Label, MediaInput } from '@zendeskgarden/react-forms'
+import { MD } from '@zendeskgarden/react-typography'
 import { ChevronDownIcon, SearchIcon } from './icons'
 
 /* Flora Global Nav — Header approximation */
@@ -10,7 +11,7 @@ const Bar = styled.header`
   justify-content: space-between;
   height: 48px;
   padding: 0 12px 0 8px;
-  background: #f7f7f7;
+  background: #f7f7f7; /* bg/subtle */
   flex-shrink: 0;
   gap: 12px;
   box-sizing: border-box;
@@ -47,25 +48,23 @@ const ProductTray = styled.button`
   border: none;
   border-radius: 6px;
   background: transparent;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 20px;
-  color: #2f3130;
+  color: #2f3130; /* fg/default */
   cursor: pointer;
+  font: inherit;
 
   &:hover {
     background: #eae9e8;
   }
 
   svg {
-    color: #646864;
+    color: #646864; /* fg/subtle */
   }
 `
 
 const Separator = styled.span`
   width: 1px;
   height: 20px;
-  background: #dcdcda;
+  background: #dcdcda; /* grey.300 */
   flex-shrink: 0;
 `
 
@@ -78,15 +77,13 @@ const Environment = styled.button`
   border: none;
   border-radius: 6px;
   background: transparent;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  color: #646864;
+  color: #646864; /* fg/subtle */
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 220px;
+  font: inherit;
 
   &:hover {
     background: #eae9e8;
@@ -132,12 +129,14 @@ export default function TopBar({ accountName = 'z3n-michalg-998-forms' }) {
       <Left>
         <LogoMark aria-hidden="true">Z</LogoMark>
         <ProductTray type="button">
-          Admin center
+          <MD tag="span" isBold>
+            Admin center
+          </MD>
           <ChevronDownIcon size={12} />
         </ProductTray>
         <Separator aria-hidden="true" />
         <Environment type="button">
-          {accountName}
+          <MD tag="span">{accountName}</MD>
           <ChevronDownIcon size={12} />
         </Environment>
       </Left>
