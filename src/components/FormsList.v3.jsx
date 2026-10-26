@@ -856,13 +856,16 @@ export default function FormsList({ version = 'v2', forms, setForms }) {
               )}
             </FilterMenu>
           ) : (
-            /* Advanced Filter (Drawer): Flora Default Button — not Media Button */
+            /* Advanced Filter (Drawer): Default Button + filter (sliders) start icon */
             <FilterButton
               isPill
               aria-expanded={filterOpen}
               aria-haspopup="dialog"
               onClick={() => setFilterOpen(open => !open)}
             >
+              <Button.StartIcon>
+                <FilterIcon />
+              </Button.StartIcon>
               Filter
             </FilterButton>
           )}
