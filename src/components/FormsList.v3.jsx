@@ -26,12 +26,14 @@ import { Tag } from '@zendeskgarden/react-tags'
 import { getColor } from '@zendeskgarden/react-theming'
 import { MD, XXL } from '@zendeskgarden/react-typography'
 import Breadcrumbs from './Breadcrumbs.v3'
+import ContentChange from './ContentChange'
 import {
   BRAND_OPTIONS,
   STATUS_OPTIONS,
   brandLabel,
   statusLabel,
 } from '../data/forms'
+import { contentUpdate } from '../data/contentUpdates'
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -89,8 +91,8 @@ const HelpLink = styled(Anchor)`
   }
 `
 
-/* Form name — Flora Medium 14/20, Bold, FG/default (not Anchor; avoids link/tag chrome) */
-const FormNameButton = styled.button.attrs({ 'data-inspect-token-color': 'fg/default' })`
+/* Form name — Flora Medium 14/20, Bold, FG/primary (not Anchor; avoids link/tag chrome) */
+const FormNameButton = styled.button.attrs({ 'data-inspect-token-color': 'fg/primary' })`
   border: none;
   background: transparent;
   padding: 0;
@@ -98,7 +100,7 @@ const FormNameButton = styled.button.attrs({ 'data-inspect-token-color': 'fg/def
   font-size: 14px;
   line-height: 20px;
   font-weight: 600; /* Bold */
-  color: ${p => getColor({ theme: p.theme, variable: 'foreground.default' })};
+  color: ${p => getColor({ theme: p.theme, variable: 'foreground.primary' })};
   cursor: pointer;
   text-align: left;
 
@@ -409,7 +411,10 @@ function formMatchesStatus(form, statusValue) {
   return true
 }
 
-function SortableFormRow({ form, onOpen, onSetActive }) {
+function SortableFormRow({ form, onOpen, onConditions, onSetActive, onMakeDefault, contentDesign = false }) {
+  const doneUpdate = contentUpdate('blocked-done')
+  const defaultToast = contentUpdate('default-form-toast')
+  const deactivateBody = contentUpdate('blocked-deactivate-body')
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: form.id,
   })
@@ -428,6 +433,11 @@ function SortableFormRow({ form, onOpen, onSetActive }) {
 
   const handleMenuChange = ({ value }) => {
     if (!value) return
+
+    if (value === 'conditions') {
+      onConditions?.(form.id)
+      return
+    }
 
     if (value === 'deactivate') {
       if (isDefault) {
@@ -448,7 +458,16 @@ function SortableFormRow({ form, onOpen, onSetActive }) {
     if (value === 'make-default') {
       if (isDefault) {
         setBlockedModal('make-default')
+        return
       }
+      onMakeDefault?.(form.id)
+      showSuccessToast(
+        <ContentChange
+          active={contentDesign}
+          from={defaultToast.from}
+          to={defaultToast.to}
+        />,
+      )
     }
   }
 
@@ -493,7 +512,7 @@ function SortableFormRow({ form, onOpen, onSetActive }) {
           )}
         >
           <Item value="conditions" label="Conditions" />
-          <Item value="clone" label="Clone" />
+          <Item value="duplicate" label="Duplicate" />
           <Item value="make-default" label="Make default" />
           {form.active ? (
             isDefault ? (
@@ -510,11 +529,23 @@ function SortableFormRow({ form, onOpen, onSetActive }) {
       {blockedModal === 'deactivate' && (
         <Modal onClose={closeBlockedModal}>
           <Modal.Header tag="h2">Cannot deactivate default form</Modal.Header>
-          <Modal.Body>You cannot deactivate a default form.</Modal.Body>
+          <Modal.Body>
+            <ContentChange
+              active={contentDesign}
+              from={deactivateBody.from}
+              to={deactivateBody.to}
+            />
+          </Modal.Body>
           <Modal.Footer>
             <Modal.FooterItem>
-              <Button isBasic isPill onClick={closeBlockedModal}>
-                Close
+              <Button isPrimary isPill onClick={closeBlockedModal}>
+                <ContentChange
+                  active={contentDesign}
+                  from={doneUpdate.from}
+                  to={doneUpdate.to}
+                >
+                  Done
+                </ContentChange>
               </Button>
             </Modal.FooterItem>
           </Modal.Footer>
@@ -528,8 +559,14 @@ function SortableFormRow({ form, onOpen, onSetActive }) {
           <Modal.Body>This ticket form is already the default form.</Modal.Body>
           <Modal.Footer>
             <Modal.FooterItem>
-              <Button isBasic isPill onClick={closeBlockedModal}>
-                Close
+              <Button isPrimary isPill onClick={closeBlockedModal}>
+                <ContentChange
+                  active={contentDesign}
+                  from={doneUpdate.from}
+                  to={doneUpdate.to}
+                >
+                  Done
+                </ContentChange>
               </Button>
             </Modal.FooterItem>
           </Modal.Footer>
@@ -651,8 +688,10 @@ function FilterDrawer({
   )
 }
 
-export default function FormsList({ version = 'v2', forms, setForms }) {
+export default function FormsList({ version = 'v2', forms, setForms, contentDesign = false }) {
   const navigate = useNavigate()
+  const createCta = contentUpdate('create-ticket-form')
+  const filterEmpty = contentUpdate('filter-empty')
   const [instructions, setInstructions] = useState('{{zd.default_ticket_forms_instructions}}')
   const [search, setSearch] = useState('')
   const [tab, setTab] = useState('ticket')
@@ -760,7 +799,11 @@ export default function FormsList({ version = 'v2', forms, setForms }) {
 
         <SplitButton>
           <Button isPrimary isPill onClick={() => navigate('/forms/new?type=ticket')}>
-            Add ticket form
+            <ContentChange
+              active={contentDesign}
+              from={createCta.from}
+              to={createCta.to}
+            />
           </Button>
           <Menu
             placement="bottom-end"
@@ -926,7 +969,13 @@ export default function FormsList({ version = 'v2', forms, setForms }) {
       </ResultsMeta>
 
       {visibleForms.length === 0 ? (
-        <Empty tag="p">No forms match your search or filters.</Empty>
+        <Empty tag="p">
+          <ContentChange
+            active={contentDesign}
+            from={filterEmpty.from}
+            to={filterEmpty.to}
+          />
+        </Empty>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={visibleForms.map(f => f.id)} strategy={verticalListSortingStrategy}>
@@ -935,11 +984,36 @@ export default function FormsList({ version = 'v2', forms, setForms }) {
                 <SortableFormRow
                   key={form.id}
                   form={form}
+                  contentDesign={contentDesign}
                   onOpen={formId => navigate(`/forms/${formId}`)}
+                  onConditions={formId => navigate(`/forms/${formId}/conditions`)}
                   onSetActive={(formId, active) =>
                     setForms(current =>
                       current.map(f => (f.id === formId ? { ...f, active } : f)),
                     )
+                  }
+                  onMakeDefault={formId =>
+                    setForms(current => {
+                      const target = current.find(f => f.id === formId)
+                      if (!target) return current
+                      return current.map(f => {
+                        if (f.type !== target.type) return f
+                        const withoutDefault = (f.badges || []).filter(b => b !== 'Default')
+                        if (f.id === formId) {
+                          const badges = [
+                            'Default',
+                            ...withoutDefault.filter(b => b !== 'Agent only'),
+                          ]
+                          return {
+                            ...f,
+                            badges,
+                            editableForEndUsers: true,
+                            active: true,
+                          }
+                        }
+                        return { ...f, badges: withoutDefault }
+                      })
+                    })
                   }
                 />
               ))}

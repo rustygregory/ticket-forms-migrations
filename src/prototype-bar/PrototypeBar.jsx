@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
+import { Tooltip } from '@zendeskgarden/react-tooltips'
 import VersionNotesPanel from './VersionNotesPanel'
 
 /**
@@ -13,7 +14,7 @@ import VersionNotesPanel from './VersionNotesPanel'
  *
  * Host-agnostic — knows nothing about brands, options or comments:
  *   title / meta          what this is and its version or date
- *   versions              [{ id, label, description?, archived? }] for the switcher
+ *   versions              [{ id, label, description?, archived?, badge?, badgeTooltip? }] for the switcher
  *   versionId             which entry is currently selected
  *   onVersionChange       called with the new id when the user picks one
  *   versionNotes          [{ versionId, date, summary, sections }] — the living
@@ -227,6 +228,54 @@ const ItemDesc = styled.span`
   color: #ffffff;
 `
 
+/* Compact count pill — e.g. content-design update count on a version row. */
+const ItemBadge = styled.span`
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: #ff00ff;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+`
+
+const BadgeTooltipBody = styled.div`
+  white-space: pre-line;
+  text-align: left;
+  max-width: 280px;
+`
+
+function VersionBadge({ count, tooltip }) {
+  const badge = (
+    <ItemBadge aria-label={`${count} content design updates`}>
+      {count}
+    </ItemBadge>
+  )
+
+  if (!tooltip) return badge
+
+  return (
+    <Tooltip
+      content={<BadgeTooltipBody>{tooltip}</BadgeTooltipBody>}
+      placement="bottom"
+      type="dark"
+      size="large"
+      zIndex={MENU_Z + 1}
+      delayMS={200}
+    >
+      {badge}
+    </Tooltip>
+  )
+}
+
 const MenuDivider = styled.div`
   height: 1px;
   background: #363d44;
@@ -381,6 +430,9 @@ export default function PrototypeBar({
                 {selected?.description && (
                   <TriggerDesc $inspectActive={inspectActive}>{selected.description}</TriggerDesc>
                 )}
+                {selected?.badge != null && (
+                  <VersionBadge count={selected.badge} tooltip={selected.badgeTooltip} />
+                )}
               </TriggerContent>
               <CaretIcon $open={isOpen} />
             </Trigger>
@@ -403,6 +455,9 @@ export default function PrototypeBar({
                     <ItemContent>
                       <ItemTitle>{entry.label}</ItemTitle>
                       {entry.description && <ItemDesc>{entry.description}</ItemDesc>}
+                      {entry.badge != null && (
+                        <VersionBadge count={entry.badge} tooltip={entry.badgeTooltip} />
+                      )}
                     </ItemContent>
                   </MenuItem>
                 ))}
@@ -427,6 +482,9 @@ export default function PrototypeBar({
                         <ItemContent>
                           <ItemTitle>{entry.label}</ItemTitle>
                           {entry.description && <ItemDesc>{entry.description}</ItemDesc>}
+                          {entry.badge != null && (
+                            <VersionBadge count={entry.badge} tooltip={entry.badgeTooltip} />
+                          )}
                         </ItemContent>
                       </MenuItem>
                     ))}

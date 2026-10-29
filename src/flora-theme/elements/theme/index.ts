@@ -36,6 +36,8 @@ const colors = {
         default: 'neutralHue.800',
         emphasis: 'neutralHue.600',
         subtle: 'neutralHue.900',
+        /* Flora border/input — form control stroke */
+        input: 'neutralHue.800',
         success: 'successHue.900',
         warning: 'warningHue.900',
         danger: 'dangerHue.900',
@@ -93,6 +95,8 @@ const colors = {
         default: 'neutralHue.300',
         emphasis: 'neutralHue.600',
         subtle: 'neutralHue.200',
+        /* Flora border/input — form control stroke (grey.300 #dcdcda) */
+        input: 'neutralHue.300',
         success: 'successHue.300',
         warning: 'warningHue.300',
         danger: 'dangerHue.300',

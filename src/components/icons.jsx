@@ -22,58 +22,100 @@ export function SearchIcon({ size = 16 }) {
 }
 
 /**
- * Garden — Chevron down (stroke).
- * Source: node_modules/@zendeskgarden/svg-icons/src/16/chevron-down-stroke.svg
+ * Flora Icons — Chevron down (20px source; scale to 16 in dense UI).
+ * Source: @zendesk-ui/assets via zendesk-globalnav-template
  */
-export function ChevronDownIcon({ size = 16 }) {
+export function ChevronDownIcon({ size = 16, color, style, ...props }) {
+  // Spread ...props so Garden Combobox endIcon (StyledBaseIcon cloneElement)
+  // can apply data-garden-id, className, and layout styles onto the SVG.
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+      width={size}
+      height={size}
+      style={color ? { ...style, color } : style}
+    >
       <path
-        fill="currentColor"
-        d="M12.688 5.61a.5.5 0 01.69.718l-.066.062-5 4a.5.5 0 01-.542.054l-.082-.054-5-4a.5.5 0 01.55-.83l.074.05L8 9.359l4.688-3.75z"
+        fill={color || 'currentColor'}
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2.74408 6.91058C3.06952 6.58515 3.59715 6.58515 3.92259 6.91058L9.41075 12.3988C9.73617 12.7242 10.2638 12.7242 10.5893 12.3988L16.0774 6.91058C16.4028 6.58515 16.9305 6.58515 17.2559 6.91058C17.5813 7.23602 17.5813 7.76365 17.2559 8.0891L11.7677 13.5773C10.7915 14.5536 9.20858 14.5536 8.23225 13.5773L2.74408 8.0891C2.41864 7.76365 2.41864 7.23602 2.74408 6.91058Z"
       />
     </svg>
   )
 }
 
 /**
- * Garden — Chevron up (stroke).
- * Source: node_modules/@zendeskgarden/svg-icons/src/16/chevron-up-stroke.svg
+ * Flora Icons — Chevron up (20px source).
+ * Source: @zendesk-ui/assets via zendesk-globalnav-template
  */
 export function ChevronUpIcon({ size = 16 }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         fill="currentColor"
-        d="M3.312 10.39a.5.5 0 01-.69-.718l.066-.062 5-4a.5.5 0 01.542-.054l.082.054 5 4a.5.5 0 01-.55.83l-.074-.05L8 6.641l-4.688 3.75z"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2.74408 13.0894C2.41864 12.764 2.41864 12.2363 2.74408 11.9109L8.23225 6.42271C9.20858 5.44638 10.7915 5.44638 11.7677 6.42271L17.2559 11.9109C17.5813 12.2363 17.5813 12.764 17.2559 13.0894C16.9305 13.4148 16.4028 13.4148 16.0774 13.0894L10.5893 7.60114C10.2638 7.27584 9.73617 7.27584 9.41075 7.60114L3.92259 13.0894C3.59715 13.4148 3.06952 13.4148 2.74408 13.0894Z"
       />
     </svg>
   )
 }
 
 /**
- * Garden — Chevron right (stroke).
- * Source: node_modules/@zendeskgarden/svg-icons/src/16/chevron-right-stroke.svg
+ * Flora Icons — Chevron right (20px source).
+ * Source: @zendesk-ui/assets via zendesk-globalnav-template
  */
 export function ChevronRightIcon({ size = 16 }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         fill="currentColor"
-        d="M5.61 3.312a.5.5 0 01.718-.69l.062.066 4 5a.5.5 0 01.054.542l-.054.082-4 5a.5.5 0 01-.83-.55l.05-.074L9.359 8l-3.75-4.688z"
+        d="M6.91119 2.74444C7.23663 2.41901 7.76349 2.41901 8.08893 2.74444L13.5772 8.23175C14.5535 9.20804 14.5534 10.7916 13.5772 11.7679L8.08893 17.2562C7.76357 17.5812 7.23655 17.5812 6.91119 17.2562C6.58576 16.9307 6.58576 16.4029 6.91119 16.0775L12.3985 10.5892C12.724 10.2637 12.7239 9.73584 12.3985 9.41046L6.91119 3.92218C6.58576 3.59674 6.58576 3.06988 6.91119 2.74444Z"
       />
     </svg>
   )
 }
 
-/** Flora Icons — Chevron left. */
+/**
+ * Flora Icons — Chevron left (20px source).
+ * Source: @zendesk-ui/assets via zendesk-globalnav-template
+ */
 export function ChevronLeftIcon({ size = 16 }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         fill="currentColor"
-        transform="translate(6.18 2.5)"
-        d="M6.2202 0.243963C6.54565 -0.0812447 7.07355 -0.0813974 7.39891 0.243963C7.72403 0.5693 7.72393 1.0963 7.39891 1.4217L1.91062 6.90998C1.5852 7.23544 1.58538 7.76331 1.91062 8.08869L7.39891 13.577L7.45652 13.6404C7.72313 13.9677 7.70368 14.4507 7.39891 14.7557C7.09376 15.0606 6.61091 15.0793 6.28367 14.8123L6.2202 14.7557L0.731914 9.2674C-0.244113 8.29125 -0.243829 6.70855 0.731914 5.73224L6.2202 0.243963Z"
+        d="M11.9105 2.74444C12.2359 2.41901 12.7638 2.41901 13.0892 2.74444C13.4145 3.06985 13.4145 3.59677 13.0892 3.92218L7.60093 9.41046C7.27551 9.73592 7.27568 10.2638 7.60093 10.5892L13.0892 16.0775L13.1468 16.1409C13.4136 16.4682 13.3942 16.9512 13.0892 17.2562C12.784 17.5611 12.3012 17.5799 11.974 17.3128L11.9105 17.2562L6.42222 11.7679C5.44619 10.7917 5.44648 9.20903 6.42222 8.23273L11.9105 2.74444Z"
       />
     </svg>
   )
@@ -149,12 +191,22 @@ export function LockIcon({ size = 16 }) {
 }
 
 /**
- * Garden — Text field type (T).
- * Source: node_modules/@zendeskgarden/svg-icons/src/16/text-stroke.svg
+ * Flora / Garden — Text field type (T).
+ * Source: @zendeskgarden/svg-icons/src/16/text-stroke.svg
+ * Same mark used on the ticket form field list.
  */
-export function TextFieldIcon({ size = 16 }) {
+export function TextFieldIcon({ size = 16, ...props }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+      width={size}
+      height={size}
+    >
       <path fill="none" stroke="currentColor" strokeLinecap="round" d="M2.5 1.5h10m-5 0v14" />
     </svg>
   )
@@ -162,26 +214,45 @@ export function TextFieldIcon({ size = 16 }) {
 
 /**
  * Garden — Multiline / textarea field type.
- * Source: node_modules/@zendeskgarden/svg-icons/src/16/multiline-stroke.svg
+ * Source: @zendeskgarden/svg-icons/src/16/multiline-stroke.svg
  */
-export function MultilineFieldIcon({ size = 16 }) {
+export function MultilineFieldIcon({ size = 16, ...props }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+      width={size}
+      height={size}
+    >
       <path fill="none" stroke="currentColor" strokeLinecap="round" d="M1.5 6.5h13m-13-4h13m-13 8h13m-13 4h6" />
     </svg>
   )
 }
 
 /**
- * Garden — Checkbox / dropdown-style field type (square + check).
- * Source: node_modules/@zendeskgarden/svg-icons/src/16/check-box-stroke.svg
+ * Flora / Garden — Dropdown field type (square + chevron).
+ * Source: @zendeskgarden/svg-icons/src/16/chevron-box-stroke.svg
+ * Same mark used on the ticket form field list.
  */
-export function DropdownFieldIcon({ size = 16 }) {
+export function DropdownFieldIcon({ size = 16, ...props }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+      width={size}
+      height={size}
+    >
       <g fill="none" stroke="currentColor">
-        <rect width="13" height="13" x="1.5" y="1.5" rx=".5" ry=".5" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 8.5L7 11l5-5" />
+        <rect width="15" height="13" x="0.5" y="1.5" rx="0.5" ry="0.5" />
+        <path strokeLinecap="round" d="M4 6.5l3.65 3.65a.5.5 0 00.71 0L12 6.5" />
       </g>
     </svg>
   )
@@ -189,11 +260,20 @@ export function DropdownFieldIcon({ size = 16 }) {
 
 /**
  * Garden — Boolean / checkmark field type.
- * Source: node_modules/@zendeskgarden/svg-icons/src/16/check-lg-stroke.svg
+ * Source: @zendeskgarden/svg-icons/src/16/check-lg-stroke.svg
  */
-export function BooleanFieldIcon({ size = 16 }) {
+export function BooleanFieldIcon({ size = 16, ...props }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+      width={size}
+      height={size}
+    >
       <path
         fill="none"
         stroke="currentColor"
@@ -205,19 +285,22 @@ export function BooleanFieldIcon({ size = 16 }) {
   )
 }
 
-/** Map ticket field `kind` → verified Garden field-type icon. */
-export function FieldTypeIcon({ kind, size = 16 }) {
+/**
+ * Map ticket field `kind` → Flora/Garden field-type icon.
+ * Spread props so Combobox Option (StyledBaseIcon) can apply garden-id/className.
+ */
+export function FieldTypeIcon({ kind, size = 16, ...props }) {
   switch (kind) {
     case 'textarea':
-      return <MultilineFieldIcon size={size} />
+      return <MultilineFieldIcon size={size} {...props} />
     case 'dropdown':
     case 'lookup':
-      return <DropdownFieldIcon size={size} />
+      return <DropdownFieldIcon size={size} {...props} />
     case 'boolean':
-      return <BooleanFieldIcon size={size} />
+      return <BooleanFieldIcon size={size} {...props} />
     case 'text':
     default:
-      return <TextFieldIcon size={size} />
+      return <TextFieldIcon size={size} {...props} />
   }
 }
 

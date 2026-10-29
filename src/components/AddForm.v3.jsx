@@ -33,7 +33,9 @@ import { Tag } from '@zendeskgarden/react-tags'
 import { getColor } from '@zendeskgarden/react-theming'
 import { XXL } from '@zendeskgarden/react-typography'
 import Breadcrumbs from './Breadcrumbs.v3'
+import ContentChange from './ContentChange'
 import { AVAILABLE_FIELDS, DEFAULT_FORM_FIELDS } from '../data/forms'
+import { contentUpdate } from '../data/contentUpdates'
 import {
   ChevronDownIcon,
   FieldTypeIcon,
@@ -67,7 +69,7 @@ const TitleRow = styled.div`
   margin-bottom: 32px; /* page title → page content */
 `
 
-/* Actions + chevron — 8px between label and EndIcon */
+/* Actions + chevron — 8px between label and EndIcon; chevron FG/subtle */
 const ActionsButton = styled(Button)`
   && {
     gap: 8px;
@@ -76,6 +78,14 @@ const ActionsButton = styled(Button)`
   && > svg,
   && [data-garden-id='buttons.icon'] {
     margin-inline-start: 0; /* gap owns the 8px spacing */
+    color: ${p => getColor({ theme: p.theme, variable: 'foreground.subtle' })};
+  }
+
+  &&:hover > svg,
+  &&:hover [data-garden-id='buttons.icon'],
+  && [data-garden-id='buttons.icon'] svg {
+    color: ${p => getColor({ theme: p.theme, variable: 'foreground.subtle' })};
+    fill: currentColor;
   }
 `
 
@@ -562,7 +572,7 @@ function FormDropZone({ children, isOver }) {
   )
 }
 
-export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
+export default function AddForm({ forms = [], onSave, onUpdate, onDelete, contentDesign = false }) {
   const theme = useTheme()
   const dragShadow = `0 8px 20px ${getColor({
     theme,
@@ -578,6 +588,12 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
   const isEdit = Boolean(existing)
   /* Default forms always expose end-user editability; the control is locked in product. */
   const isDefaultForm = Boolean(existing?.badges?.includes('Default'))
+  const doneUpdate = contentUpdate('blocked-done')
+  const endUserUpdate = contentUpdate('end-user-editing')
+  const brandsUpdate = contentUpdate('all-brands')
+  const savedToast = contentUpdate('form-saved')
+  const deactivateBody = contentUpdate('blocked-deactivate-body')
+  const deleteBody = contentUpdate('blocked-delete-body')
 
   const [formTitle, setFormTitle] = useState(existing?.name || '')
   const [endUserTitle, setEndUserTitle] = useState(existing?.endUserTitle || '')
@@ -719,7 +735,14 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
 
     if (isEdit) {
       onUpdate?.(existing.id, payload)
-      showSuccessToast('Form saved', 'Your changes have been saved.')
+      showSuccessToast(
+        'Form saved',
+        <ContentChange
+          active={contentDesign}
+          from={savedToast.from}
+          to={savedToast.to}
+        />,
+      )
     } else {
       onSave?.({
         id: `form-${Date.now()}`,
@@ -820,7 +843,13 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
                     : e => setEditableForEndUsers(e.target.checked)
                 }
               >
-                <Label>Editable for end users</Label>
+                <Label>
+                  <ContentChange
+                    active={contentDesign}
+                    from={endUserUpdate.from}
+                    to={endUserUpdate.to}
+                  />
+                </Label>
                 <Hint>Allow end users to select this form when submitting a ticket.</Hint>
               </Checkbox>
             </Field>
@@ -845,7 +874,13 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
                 checked={applyToAllBrands}
                 onChange={e => setApplyToAllBrands(e.target.checked)}
               >
-                <Label>Apply to all brands</Label>
+                <Label>
+                  <ContentChange
+                    active={contentDesign}
+                    from={brandsUpdate.from}
+                    to={brandsUpdate.to}
+                  />
+                </Label>
                 <Hint>Associate this form with all current and future brands.</Hint>
               </Checkbox>
             </Field>
@@ -981,11 +1016,23 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
       {blockedModal === 'deactivate' && (
         <Modal onClose={closeBlockedModal}>
           <Modal.Header tag="h2">Cannot deactivate default form</Modal.Header>
-          <Modal.Body>You cannot deactivate a default form.</Modal.Body>
+          <Modal.Body>
+            <ContentChange
+              active={contentDesign}
+              from={deactivateBody.from}
+              to={deactivateBody.to}
+            />
+          </Modal.Body>
           <Modal.Footer>
             <Modal.FooterItem>
-              <Button isBasic isPill onClick={closeBlockedModal}>
-                Close
+              <Button isPrimary isPill onClick={closeBlockedModal}>
+                <ContentChange
+                  active={contentDesign}
+                  from={doneUpdate.from}
+                  to={doneUpdate.to}
+                >
+                  Done
+                </ContentChange>
               </Button>
             </Modal.FooterItem>
           </Modal.Footer>
@@ -996,11 +1043,21 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
       {blockedModal === 'delete' && (
         <Modal onClose={closeBlockedModal}>
           <Modal.Header tag="h2">Cannot delete default form</Modal.Header>
-          <Modal.Body>You cannot delete a default form.</Modal.Body>
+          <Modal.Body>
+            <ContentChange
+              active={contentDesign}
+              from={deleteBody.from}
+              to={deleteBody.to}
+            />
+          </Modal.Body>
           <Modal.Footer>
             <Modal.FooterItem>
               <Button isBasic isPill onClick={closeBlockedModal}>
-                Close
+                <ContentChange
+                  active={contentDesign}
+                  from={doneUpdate.from}
+                  to={doneUpdate.to}
+                />
               </Button>
             </Modal.FooterItem>
           </Modal.Footer>

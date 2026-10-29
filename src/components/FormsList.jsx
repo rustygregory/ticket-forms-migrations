@@ -362,7 +362,7 @@ const FormNameButton = styled.button`
   font-size: 14px;
   line-height: 20px;
   font-weight: 500;
-  color: #2f3130;
+  color: #406cc4;
   cursor: pointer;
   text-align: left;
 
@@ -394,7 +394,7 @@ function formMatchesStatus(form, statusValue) {
   return true
 }
 
-function SortableFormRow({ form, onOpen, onSetActive }) {
+function SortableFormRow({ form, onOpen, onConditions, onSetActive, onMakeDefault }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: form.id,
   })
@@ -413,6 +413,11 @@ function SortableFormRow({ form, onOpen, onSetActive }) {
 
   const handleMenuChange = ({ value }) => {
     if (!value) return
+
+    if (value === 'conditions') {
+      onConditions?.(form.id)
+      return
+    }
 
     if (value === 'deactivate') {
       if (isDefault) {
@@ -433,7 +438,10 @@ function SortableFormRow({ form, onOpen, onSetActive }) {
     if (value === 'make-default') {
       if (isDefault) {
         setBlockedModal('make-default')
+        return
       }
+      onMakeDefault?.(form.id)
+      showSuccessToast('Default ticket form updated')
     }
   }
 
@@ -478,7 +486,7 @@ function SortableFormRow({ form, onOpen, onSetActive }) {
           )}
         >
           <Item value="conditions" label="Conditions" />
-          <Item value="clone" label="Clone" />
+          <Item value="duplicate" label="Duplicate" />
           <Item value="make-default" label="Make default" />
           {form.active ? (
             isDefault ? (
@@ -498,8 +506,8 @@ function SortableFormRow({ form, onOpen, onSetActive }) {
           <Modal.Body>You cannot deactivate a default form.</Modal.Body>
           <Modal.Footer>
             <Modal.FooterItem>
-              <Button isBasic isPill onClick={closeBlockedModal}>
-                Close
+              <Button isPrimary isPill onClick={closeBlockedModal}>
+                Done
               </Button>
             </Modal.FooterItem>
           </Modal.Footer>
@@ -513,8 +521,8 @@ function SortableFormRow({ form, onOpen, onSetActive }) {
           <Modal.Body>This ticket form is already the default form.</Modal.Body>
           <Modal.Footer>
             <Modal.FooterItem>
-              <Button isBasic isPill onClick={closeBlockedModal}>
-                Close
+              <Button isPrimary isPill onClick={closeBlockedModal}>
+                Done
               </Button>
             </Modal.FooterItem>
           </Modal.Footer>
@@ -911,10 +919,34 @@ export default function FormsList({ version = 'v2', forms, setForms }) {
                   key={form.id}
                   form={form}
                   onOpen={formId => navigate(`/forms/${formId}`)}
+                  onConditions={formId => navigate(`/forms/${formId}/conditions`)}
                   onSetActive={(formId, active) =>
                     setForms(current =>
                       current.map(f => (f.id === formId ? { ...f, active } : f)),
                     )
+                  }
+                  onMakeDefault={formId =>
+                    setForms(current => {
+                      const target = current.find(f => f.id === formId)
+                      if (!target) return current
+                      return current.map(f => {
+                        if (f.type !== target.type) return f
+                        const withoutDefault = (f.badges || []).filter(b => b !== 'Default')
+                        if (f.id === formId) {
+                          const badges = [
+                            'Default',
+                            ...withoutDefault.filter(b => b !== 'Agent only'),
+                          ]
+                          return {
+                            ...f,
+                            badges,
+                            editableForEndUsers: true,
+                            active: true,
+                          }
+                        }
+                        return { ...f, badges: withoutDefault }
+                      })
+                    })
                   }
                 />
               ))}

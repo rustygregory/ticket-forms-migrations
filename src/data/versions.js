@@ -1,4 +1,13 @@
+import { CONTENT_DESIGN_UPDATE_COUNT, contentDesignBadgeTooltip } from './contentUpdates'
+
 export const VERSIONS = [
+  {
+    id: 'v4',
+    label: 'V4',
+    description: 'Content design updates',
+    badge: CONTENT_DESIGN_UPDATE_COUNT,
+    badgeTooltip: contentDesignBadgeTooltip(),
+  },
   {
     id: 'v3',
     label: 'V3',

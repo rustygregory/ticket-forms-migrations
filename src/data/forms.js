@@ -1,7 +1,40 @@
 /**
  * Prototype ticket / service catalog forms.
  * `brand`: 'dinoco' | 'rusteze' | null (null = ticket forms without brands)
+ * `conditions`: { agents, endUsers } — form condition cards per audience
  */
+
+/** Empty conditions shape for forms without seeded rules. */
+export const EMPTY_CONDITIONS = { agents: [], endUsers: [] }
+
+/** Demo agent conditions (Approval status + Sentiment confidence). */
+const DEMO_AGENT_CONDITIONS = [
+  {
+    id: 'cond-approval',
+    fieldName: 'Approval status',
+    expanded: true,
+    rules: [
+      {
+        id: 'rule-approval-pending',
+        ifValue: 'Pending',
+        thenShow: ['Language', 'Sentiment', 'Sentiment confidence'],
+      },
+    ],
+  },
+  {
+    id: 'cond-sentiment-confidence',
+    fieldName: 'Sentiment confidence',
+    expanded: false,
+    rules: [
+      {
+        id: 'rule-sentiment-medium',
+        ifValue: 'Medium',
+        thenShow: ['Language'],
+      },
+    ],
+  },
+]
+
 export const INITIAL_FORMS = [
   {
     id: 'common',
@@ -13,6 +46,10 @@ export const INITIAL_FORMS = [
     brand: null,
     editableForEndUsers: true,
     applyToAllBrands: true,
+    conditions: {
+      agents: DEMO_AGENT_CONDITIONS,
+      endUsers: [],
+    },
   },
   {
     id: 'default',
@@ -24,6 +61,7 @@ export const INITIAL_FORMS = [
     brand: 'dinoco',
     editableForEndUsers: true,
     applyToAllBrands: false,
+    conditions: { agents: [], endUsers: [] },
   },
   {
     id: 'ice-cream',
@@ -35,6 +73,7 @@ export const INITIAL_FORMS = [
     brand: 'rusteze',
     editableForEndUsers: true,
     applyToAllBrands: false,
+    conditions: { agents: [], endUsers: [] },
   },
   {
     id: 'new',
@@ -46,6 +85,7 @@ export const INITIAL_FORMS = [
     brand: null,
     editableForEndUsers: false,
     applyToAllBrands: true,
+    conditions: { agents: [], endUsers: [] },
   },
   {
     id: 'copy-common',
@@ -57,6 +97,7 @@ export const INITIAL_FORMS = [
     brand: 'dinoco',
     editableForEndUsers: true,
     applyToAllBrands: false,
+    conditions: { agents: [], endUsers: [] },
   },
   {
     id: 'service-catalog-1',
@@ -68,6 +109,7 @@ export const INITIAL_FORMS = [
     brand: 'rusteze',
     editableForEndUsers: true,
     applyToAllBrands: false,
+    conditions: { agents: [], endUsers: [] },
   },
   {
     id: 'service-catalog-2',
@@ -79,6 +121,7 @@ export const INITIAL_FORMS = [
     brand: null,
     editableForEndUsers: true,
     applyToAllBrands: true,
+    conditions: { agents: [], endUsers: [] },
   },
   {
     id: 'service-catalog-3',
@@ -90,6 +133,7 @@ export const INITIAL_FORMS = [
     brand: 'dinoco',
     editableForEndUsers: true,
     applyToAllBrands: false,
+    conditions: { agents: [], endUsers: [] },
   },
 ]
 
@@ -134,6 +178,43 @@ export const AVAILABLE_FIELDS = [
   { id: 'topic-confidence', name: 'Topic confidence', kind: 'dropdown' },
   { id: 'type', name: 'Type', kind: 'dropdown' },
 ]
+
+/**
+ * Parent fields for “When filling out this field” on Default Ticket Form (empty).
+ * Order matches product screenshots — connections TBD.
+ */
+export const DEFAULT_CONDITION_PARENT_FIELDS = [
+  { id: 'type', name: 'Type', kind: 'dropdown' },
+  { id: 'priority', name: 'Priority', kind: 'dropdown' },
+  { id: 'summary', name: 'Summary', kind: 'text' },
+  { id: 'summary-agent-id', name: 'Summary agent ID', kind: 'text' },
+  { id: 'summary-date-time', name: 'Summary date and time', kind: 'text' },
+  { id: 'summary-locale', name: 'Summary locale', kind: 'text' },
+  { id: 'topic', name: 'Topic', kind: 'dropdown' },
+  { id: 'topic-confidence', name: 'Topic confidence', kind: 'dropdown' },
+  { id: 'language', name: 'Language', kind: 'dropdown' },
+  { id: 'language-confidence', name: 'Language confidence', kind: 'dropdown' },
+  { id: 'sentiment', name: 'Sentiment', kind: 'dropdown' },
+  { id: 'sentiment-confidence', name: 'Sentiment confidence', kind: 'dropdown' },
+  { id: 'entity-test', name: 'Entity test', kind: 'text' },
+]
+
+/**
+ * Parent fields when the form already has conditions seeded (Common ticket form).
+ * Order matches product screenshot — connections TBD.
+ */
+export const COMMON_CONDITION_PARENT_FIELDS = [
+  { id: 'approval-status', name: 'Approval status', kind: 'dropdown' },
+  { id: 'language', name: 'Language', kind: 'dropdown' },
+  { id: 'sentiment', name: 'Sentiment', kind: 'dropdown' },
+  { id: 'sentiment-confidence', name: 'Sentiment confidence', kind: 'dropdown' },
+]
+
+/** Resolve condition parent-field options for a form (connections TBD). */
+export function getConditionParentFields(form) {
+  if (form?.id === 'common') return COMMON_CONDITION_PARENT_FIELDS
+  return DEFAULT_CONDITION_PARENT_FIELDS
+}
 
 export const BRAND_OPTIONS = [
   { value: 'none', label: 'Ticket forms without brands' },

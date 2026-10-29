@@ -12,6 +12,7 @@ import FormsList from './components/FormsList'
 import FormsListV3 from './components/FormsList.v3'
 import AddForm from './components/AddForm'
 import AddFormV3 from './components/AddForm.v3'
+import FormConditions from './components/FormConditions'
 import { INITIAL_FORMS } from './data/forms'
 import { VERSIONS } from './data/versions'
 import './App.css'
@@ -79,7 +80,7 @@ const WorkArea = styled.div`
 
 function Prototype() {
   const [forms, setForms] = useState(INITIAL_FORMS)
-  /* Default V3 = Flora audit applied. V1/V2 live under Archive in the switcher. */
+  /* Default V3 = Flora. V4 = content design updates. V1/V2 under Archive. */
   const [version, setVersion] = useState('v3')
   const [inspectSlot, setInspectSlot] = useState(null)
   const [inspectActive, setInspectActive] = useState(false)
@@ -88,11 +89,12 @@ function Prototype() {
   const [isSubnavExpanded, setIsSubnavExpanded] = useState(true)
   const location = useLocation()
   const navigate = useNavigate()
-  const isV3 = version === 'v3'
-  const List = isV3 ? FormsListV3 : FormsList
-  const FormScreen = isV3 ? AddFormV3 : AddForm
-  /* V3 keeps V2 filter-drawer behavior; only Flora visual/component fixes differ. */
-  const listVersion = isV3 ? 'v2' : version
+  const isFlora = version === 'v3' || version === 'v4'
+  const contentDesign = version === 'v4'
+  const List = isFlora ? FormsListV3 : FormsList
+  const FormScreen = isFlora ? AddFormV3 : AddForm
+  /* Flora versions keep V2 filter-drawer behavior. */
+  const listVersion = isFlora ? 'v2' : version
 
   return (
     <Shell>
@@ -124,14 +126,35 @@ function Prototype() {
               <Route path="/" element={<Navigate to="/forms" replace />} />
               <Route
                 path="/forms"
-                element={<List version={listVersion} forms={forms} setForms={setForms} />}
+                element={
+                  <List
+                    version={listVersion}
+                    forms={forms}
+                    setForms={setForms}
+                    contentDesign={contentDesign}
+                  />
+                }
               />
               <Route
                 path="/forms/new"
                 element={
                   <FormScreen
                     forms={forms}
+                    contentDesign={contentDesign}
                     onSave={form => setForms(current => [form, ...current])}
+                  />
+                }
+              />
+              <Route
+                path="/forms/:id/conditions"
+                element={
+                  <FormConditions
+                    forms={forms}
+                    onUpdate={(formId, updates) =>
+                      setForms(current =>
+                        current.map(form => (form.id === formId ? { ...form, ...updates } : form)),
+                      )
+                    }
                   />
                 }
               />
@@ -141,6 +164,7 @@ function Prototype() {
                   <FormScreen
                     key={location.pathname}
                     forms={forms}
+                    contentDesign={contentDesign}
                     onUpdate={(formId, updates) =>
                       setForms(current =>
                         current.map(form => (form.id === formId ? { ...form, ...updates } : form)),

@@ -933,8 +933,8 @@ export default function AddForm({ forms = [], onSave, onUpdate, onDelete }) {
           <Modal.Body>You cannot deactivate a default form.</Modal.Body>
           <Modal.Footer>
             <Modal.FooterItem>
-              <Button isBasic isPill onClick={closeBlockedModal}>
-                Close
+              <Button isPrimary isPill onClick={closeBlockedModal}>
+                Done
               </Button>
             </Modal.FooterItem>
           </Modal.Footer>

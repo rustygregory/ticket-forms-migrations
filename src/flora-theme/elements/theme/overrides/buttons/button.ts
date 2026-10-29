@@ -115,10 +115,11 @@ export const button = ({ theme, $isPill, $isPrimary, $isBasic, $isNeutral, $isDa
 
   } else {
     colors.fg           = getColor({ theme, hue: 'neutralHue',                     light: { shade:  900 }, dark: { shade:   300 } });
-    colors.border       = getColor({ theme, hue: 'neutralHue',                     light: { shade:  500 }, dark: { shade:   600 } });
+    /* Flora button/border/default → grey.600 #8B8E89 */
+    colors.border       = getColor({ theme, hue: 'neutralHue',                     light: { shade:  600 }, dark: { shade:   600 } });
     colors.hoverFg      = getColor({ theme, hue: 'neutralHue',                     light: { shade:  900 }, dark: { shade:   300 } });
     colors.hoverBg      = getColor({ theme, hue: 'neutralHue',                     light: { shade:  700 }, dark: { hue: 'white' }, transparency: theme.opacity[100] });
-    colors.hoverBorder  = getColor({ theme, hue: 'neutralHue',                     light: { shade:  600 }, dark: { shade:   500 } });
+    colors.hoverBorder  = getColor({ theme, hue: 'neutralHue',                     light: { shade:  700 }, dark: { shade:   500 } });
     colors.activeFg     = getColor({ theme, hue: 'neutralHue',                     light: { shade:  900 }, dark: { shade:   300 } });
     colors.activeBg     = getColor({ theme, hue: 'neutralHue',                     light: { shade:  700 }, dark: { hue: 'white' }, transparency: theme.opacity[200] });
     colors.activeBorder   = getColor({ theme, hue: 'neutralHue',                     light: { shade:  700 }, dark: { shade:   400 } });
